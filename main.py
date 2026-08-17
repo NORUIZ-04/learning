@@ -110,7 +110,30 @@ def add_destination():
     db.session.commit()             # commit the transaction, saving it to the DB
     return jsonify(destination.to_dict()), 201
 
+#put request
+@app.route("/destinations/<int:destination_id>", methods=["PUT"])
+def update_destination(destination_id):
+    destination = Destination.query.get(destination_id)
+    if not destination:
+        return jsonify({"error": "destination not found!"}), 404
 
+    data = request.get_json()
+    destination.Destination = data.get("destination", destination.Destination)
+    destination.country = data.get("country", destination.country)
+    destination.rating = data.get("rating", destination.rating)
+
+    db.session.commit()  # commit the changes to the database
+    return jsonify(destination.to_dict())
+#delete request
+@app.route("/destinations/<int:destination_id>", methods=["DELETE"])
+def delete_destination(destination_id):
+    destination = Destination.query.get(destination_id)
+    if not destination:
+        return jsonify({"error": "destination not found!"}), 404
+
+    db.session.delete(destination)  # stage the record for deletion
+    db.session.commit()              # commit the transaction, removing it from the DB
+    return jsonify({"message": "destination deleted successfully"}), 200
 # ---------------------------------------------------------
 # Entry point: run the Flask development server.
 # debug=True enables auto-reload on code changes and detailed
